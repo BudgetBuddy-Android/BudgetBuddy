@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BudgetBuddy</string>
+    <string name="merge_conflict">Conflict 나라 얍~</string>
 </resources>
