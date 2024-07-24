@@ -13,12 +13,19 @@ import com.gdr.budgetbuddy.databinding.ActivityMainBinding
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var auth: FirebaseAuth
 
     companion object {
         const val TAG = "GoogleLoginTest"
@@ -29,6 +36,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        FirebaseApp.initializeApp(this);
+        auth = Firebase.auth
 
         val webClientId = "blank"
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
@@ -92,6 +102,53 @@ class MainActivity : AppCompatActivity() {
                         // authenticate on your server.
                         val googleIdTokenCredential = GoogleIdTokenCredential
                             .createFrom(credential.data)
+
+                        val idToken = googleIdTokenCredential.idToken
+                        when {
+                            idToken != null -> {
+                                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                                auth.signInWithCredential(firebaseCredential)
+                                    .addOnCompleteListener(this) { task ->
+
+                                        if (task.isSuccessful) {
+                                            //Sign in success, update UI with the signed-in user's information
+                                            val user = auth.currentUser
+                                        } else {
+                                            Log.e(TAG, "task is not successful ${task.exception}")
+                                        }
+                                    }
+                            }
+
+                            else -> Log.w(TAG, "idToken is null")
+                        }
+
+//                        val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
+//                        val idToken = googleCredential.googleIdToken
+//                        when {
+//                            idToken != null -> {
+//                                // Got an ID token from Google. Use it to authenticate
+//                                // with Firebase.
+//                                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+//                                auth.signInWithCredential(firebaseCredential)
+//                                    .addOnCompleteListener(this) { task ->
+//                                        if (task.isSuccessful) {
+//                                            // Sign in success, update UI with the signed-in user's information
+//                                            Log.d(TAG, "signInWithCredential:success")
+//                                            val user = auth.currentUser
+//                                            updateUI(user)
+//                                        } else {
+//                                            // If sign in fails, display a message to the user.
+//                                            Log.w(TAG, "signInWithCredential:failure", task.exception)
+//                                            updateUI(null)
+//                                        }
+//                                    }
+//                            }
+//                            else -> {
+//                                // Shouldn't happen.
+//                                Log.d(TAG, "No ID token!")
+//                            }
+//                        }
+
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
