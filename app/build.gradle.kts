@@ -48,6 +48,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     // 사용자 인증 정보 (credentials)
     implementation("androidx.credentials:credentials:1.2.2")
