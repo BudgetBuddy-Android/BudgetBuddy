@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PolicyActivity">
+    tools:context=".userauth.PolicyActivity">
 
     <!-- Header -->
     <!-- todo:
@@ -112,6 +112,7 @@
 
         <!-- all constant -->
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/all_agree_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -188,6 +189,7 @@
                     - temp textSize
                     -->
             <TextView
+                android:id="@+id/term_of_service_content_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -234,6 +236,7 @@
                     - temp textSize
                     -->
             <TextView
+                android:id="@+id/privacy_policy_content_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -279,6 +282,7 @@
                     - temp textSize
                     -->
             <TextView
+                android:id="@+id/marketing_content_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -288,15 +292,46 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <!-- button -->
+    <!-- Button -->
     <!-- todo:
-            - temp margin
-            - temp text -->
-    <Button
+        - temp padding
+        -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="75dp"
-        android:text="Google로 계속하기" />
+        android:layout_marginTop="75dp">
+
+        <!-- backBtn -->
+        <!-- todo:
+                - temp width, height
+                - temp margin
+                - temp background
+                -->
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/ic_google_logo"
+            app:layout_constraintBottom_toBottomOf="@+id/login_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/login_txt" />
+
+        <!-- titleTxt -->
+        <!-- todo:
+                - temp text
+                - temp textSize
+                -->
+        <TextView
+            android:id="@+id/login_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Google로 계속하기"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
