@@ -14,6 +14,7 @@ import com.gdr.budgetbuddy.databinding.ActivityLoginBinding
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -52,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this);
         auth = Firebase.auth
 
-        val webClientId = "blank"
+        val webClientId = "blank" // TODO 여기에 web client id 추가하셈!
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(webClientId)
@@ -143,9 +144,9 @@ class LoginActivity : AppCompatActivity() {
                             idToken != null -> {
                                 // TODO mail 주소가 FirebaseUser 목록에 있는지 확인 후 없으면 화면 이동, 있으면 HomeActivity로 이동
                                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+
                                 auth.signInWithCredential(firebaseCredential)
                                     .addOnCompleteListener(this) { task ->
-
                                         if (task.isSuccessful) {
                                             //Sign in success, update UI with the signed-in user's information
                                             val user = auth.currentUser
@@ -199,5 +200,20 @@ class LoginActivity : AppCompatActivity() {
                 Log.e(TAG, "Unexpected type of credential")
             }
         }
+    }
+
+    private fun checkDuplicateEmail(email: String) {
+        auth.fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                val signInMethod = task.result?.signInMethods
+                Log.d(TAG, "signInMethod: $signInMethod")
+                if (signInMethod.isNullOrEmpty()) {
+                    // TODO 회원 가입으로 화면 이동
+                    Log.d(TAG, "신규 회원입니다")
+                } else {
+                    // TODO 홈 화면으로 이동
+                    Log.d(TAG, "기존 회원입니다")
+                }
+            }
     }
 }
