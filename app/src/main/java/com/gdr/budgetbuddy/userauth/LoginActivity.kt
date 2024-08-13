@@ -11,15 +11,17 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.gdr.budgetbuddy.databinding.ActivityLoginBinding
+import com.gdr.budgetbuddy.utils.Constants
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     companion object {
         const val TAG = "GoogleLoginTest"
@@ -52,8 +55,9 @@ class LoginActivity : AppCompatActivity() {
 
         FirebaseApp.initializeApp(this);
         auth = Firebase.auth
+        db = Firebase.firestore
 
-        val webClientId = "blank" // TODO 여기에 web client id 추가하셈!
+        val webClientId = "" // TODO 여기에 web client id 추가하셈!
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(webClientId)
@@ -143,6 +147,10 @@ class LoginActivity : AppCompatActivity() {
                         when {
                             idToken != null -> {
                                 // TODO mail 주소가 FirebaseUser 목록에 있는지 확인 후 없으면 화면 이동, 있으면 HomeActivity로 이동
+                                checkSignUp(googleIdTokenCredential.id)
+                                // TODO: callback 구현 : 존재한다 =>> 메인, 존재 안한다 =>> 개인정보 동의화면
+
+                                // ============================== 여기부터 회원가입 ==============================
                                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
 
                                 auth.signInWithCredential(firebaseCredential)
@@ -150,6 +158,7 @@ class LoginActivity : AppCompatActivity() {
                                         if (task.isSuccessful) {
                                             //Sign in success, update UI with the signed-in user's information
                                             val user = auth.currentUser
+                                            Log.i(TAG, "user = $user")
                                         } else {
                                             Log.e(TAG, "task is not successful ${task.exception}")
                                         }
@@ -202,18 +211,32 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkDuplicateEmail(email: String) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                val signInMethod = task.result?.signInMethods
-                Log.d(TAG, "signInMethod: $signInMethod")
-                if (signInMethod.isNullOrEmpty()) {
-                    // TODO 회원 가입으로 화면 이동
-                    Log.d(TAG, "신규 회원입니다")
+    /**
+     * fireStore에 email이 있는지 체크
+     *
+     * @param String userEmail
+     */
+    private fun checkSignUp(userId: String) { // TODO: parameter =>> callback
+        Log.i(TAG, "checkSignUp $userId")
+
+        // 비동기 동작
+        val docRef = db.collection(Constants.USER_COLLECTION).document(userId)
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d(TAG, "$userId Info = ${document.data}")
+                    // TODO: parameter callback =>> call
                 } else {
-                    // TODO 홈 화면으로 이동
-                    Log.d(TAG, "기존 회원입니다")
+                    Log.e(TAG, "No such document. $userId isn't existed.")
+                    // TODO: parameter callback =>> call
                 }
             }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "get failed with ", exception)
+            }
     }
+
+    /**
+     * fetchSignInMethodsForEmail =>> deprecated
+     */
 }
