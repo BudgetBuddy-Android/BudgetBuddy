@@ -1,5 +1,6 @@
 package com.gdr.budgetbuddy.userauth
 
+import android.content.Intent
 import android.credentials.GetCredentialException
 import android.os.Bundle
 import android.util.Log
@@ -10,8 +11,11 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import com.gdr.budgetbuddy.MainActivity
 import com.gdr.budgetbuddy.databinding.ActivityLoginBinding
 import com.gdr.budgetbuddy.utils.Constants
+import com.gdr.budgetbuddy.utils.Constants.USER_GOOGLE_ID
+import com.gdr.budgetbuddy.utils.Constants.USER_GOOGLE_TOKEN
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -147,7 +151,20 @@ class LoginActivity : AppCompatActivity() {
                         when {
                             idToken != null -> {
                                 // TODO mail 주소가 FirebaseUser 목록에 있는지 확인 후 없으면 화면 이동, 있으면 HomeActivity로 이동
-                                checkSignUp(googleIdTokenCredential.id)
+                                val userExistenceHandler = object : UserExistenceHandler{
+                                    override fun onExistUser() {
+                                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                                    }
+
+                                    override fun onNotExistUser() {
+                                        val intent = Intent(this@LoginActivity, PolicyActivity::class.java).apply {
+                                            putExtra(USER_GOOGLE_ID, googleIdTokenCredential.id)
+                                            putExtra(USER_GOOGLE_TOKEN, googleIdTokenCredential.idToken)
+                                        }
+                                        startActivity(intent)
+                                    }
+                                }
+                                checkSignUp(googleIdTokenCredential.id, userExistenceHandler)
                                 // TODO: callback 구현 : 존재한다 =>> 메인, 존재 안한다 =>> 개인정보 동의화면
 
                                 // ============================== 여기부터 회원가입 ==============================
@@ -216,19 +233,21 @@ class LoginActivity : AppCompatActivity() {
      *
      * @param String userEmail
      */
-    private fun checkSignUp(userId: String) { // TODO: parameter =>> callback
+    private fun checkSignUp(userId: String, userExistenceHandler: UserExistenceHandler) { // TODO: parameter =>> callback
         Log.i(TAG, "checkSignUp $userId")
 
         // 비동기 동작
-        val docRef = db.collection(Constants.USER_COLLECTION).document(userId)
+        val docRef = db.collection(Constants.USER_ACCOUNT_COLLECTION).document(userId)
         docRef.get()
             .addOnSuccessListener { document ->
-                if (document != null) {
+                if (document.data != null) {
                     Log.d(TAG, "$userId Info = ${document.data}")
                     // TODO: parameter callback =>> call
+                    userExistenceHandler.onExistUser()
                 } else {
                     Log.e(TAG, "No such document. $userId isn't existed.")
                     // TODO: parameter callback =>> call
+                    userExistenceHandler.onNotExistUser()
                 }
             }
             .addOnFailureListener { exception ->
