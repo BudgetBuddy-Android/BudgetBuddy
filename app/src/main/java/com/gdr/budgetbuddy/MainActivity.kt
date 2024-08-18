@@ -1,14 +1,11 @@
 package com.gdr.budgetbuddy
 
-import android.content.pm.PackageManager
 import android.credentials.GetCredentialException
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -87,24 +84,24 @@ class MainActivity : AppCompatActivity() {
         //askNotificationPermission()
     }
 
-/*    private fun askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                // FCM SDK (and your app) can post notifications.
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // TODO: display an educational UI explaining to the user the features that will be enabled
-                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-                //       If the user selects "No thanks," allow the user to continue without notifications.
-            } else {
-                // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    /*    private fun askNotificationPermission() {
+            // This is only necessary for API level >= 33 (TIRAMISU)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    // FCM SDK (and your app) can post notifications.
+                } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    // TODO: display an educational UI explaining to the user the features that will be enabled
+                    //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                    //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                    //       If the user selects "No thanks," allow the user to continue without notifications.
+                } else {
+                    // Directly ask for the permission
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
             }
-        }
-    }*/
+        }*/
 
     // getCredential = 사용자에게 로그인할 수 있는 계정이 있는지 확인!
     // result는 그 결과임
