@@ -11,7 +11,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import com.gdr.budgetbuddy.MainActivity
+import com.gdr.budgetbuddy.main.MainActivity
 import com.gdr.budgetbuddy.databinding.ActivityLoginBinding
 import com.gdr.budgetbuddy.utils.Constants
 import com.gdr.budgetbuddy.utils.Constants.USER_GOOGLE_ID
