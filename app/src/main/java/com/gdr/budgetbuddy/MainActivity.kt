@@ -102,10 +102,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // Directly ask for the permission
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
         }
     }*/
-
+    
     // getCredential = 사용자에게 로그인할 수 있는 계정이 있는지 확인!
     // result는 그 결과임
     // TYPE_GOOGIE_ID_TOKEN_CREDENTIAL 상수는 Google Id 토큰 사용자 인증 정보의 유형을 나타냅니다.
