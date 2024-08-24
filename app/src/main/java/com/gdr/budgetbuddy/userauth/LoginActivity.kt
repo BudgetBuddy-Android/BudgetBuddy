@@ -57,11 +57,13 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 파이어베이스 객체 초기화
         FirebaseApp.initializeApp(this);
         auth = Firebase.auth
         db = Firebase.firestore
 
-        val webClientId = "" // TODO 여기에 web client id 추가하셈!
+        // 구글 아이디 옵션 설정
+        val webClientId = Constants.WEB_CLIENT_ID
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(webClientId)
@@ -69,6 +71,7 @@ class LoginActivity : AppCompatActivity() {
             .setNonce(null)
             .build()
 
+        // 구글 로그인 리퀘스트 설정
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
             .build()
@@ -85,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
                     )
                     handleSignIn(result)
                 } catch (e: GetCredentialException) {
-                    Log.d(TAG, "error!")
+                    Log.d(TAG, "credentialManager error!", e)
                 }
             }
         }
@@ -113,32 +116,20 @@ class LoginActivity : AppCompatActivity() {
             }
         }*/
 
-    // getCredential = 사용자에게 로그인할 수 있는 계정이 있는지 확인!
-    // result는 그 결과임
-    // TYPE_GOOGIE_ID_TOKEN_CREDENTIAL 상수는 Google Id 토큰 사용자 인증 정보의 유형을 나타냅니다.
+    /**
+     * 구글 로그인 핸들링
+     *
+     * @param result
+     */
     private fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        val credential = result.credential
+        // getCredential = 사용자에게 로그인할 수 있는 계정이 있는지 확인!
+        // result는 그 결과임
+        // TYPE_GOOGIE_ID_TOKEN_CREDENTIAL 상수는 Google Id 토큰 사용자 인증 정보의 유형을 나타냅니다.
 
-        when (credential) {
-
-//            // Passkey credential
-//            is PublicKeyCredential -> {
-//                // Share responseJson such as a GetCredentialResponse on your server to
-//                // validate and authenticate
-//                responseJson = credential.authenticationResponseJson
-//            }
-//
-//            // Password credential
-//            is PasswordCredential -> {
-//                // Send ID and password to your server to validate and authenticate.
-//                val username = credential.id
-//                val password = credential.password
-//            }
-
-            // CustomCredential = GoogleIdTokenCredential data 결과임
+        when (val credential = result.credential) {
 
             // GoogleIdToken credential
+            // CustomCredential = GoogleIdTokenCredential data 결과임
             is CustomCredential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
@@ -150,13 +141,16 @@ class LoginActivity : AppCompatActivity() {
                         val idToken = googleIdTokenCredential.idToken
                         when {
                             idToken != null -> {
-                                // TODO mail 주소가 FirebaseUser 목록에 있는지 확인 후 없으면 화면 이동, 있으면 HomeActivity로 이동
-                                val userExistenceHandler = object : UserExistenceHandler{
+                                val userExistenceHandler = object : UserExistenceHandler {
                                     override fun onExistUser() {
+                                        // 유저 존재 =>> 메인 화면
+                                        Log.d(TAG, "onExistUser")
                                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                                     }
 
                                     override fun onNotExistUser() {
+                                        // 유저 존재하지 않음 =>> 동의 화면
+                                        Log.d(TAG, "onNotExistUser")
                                         val intent = Intent(this@LoginActivity, PolicyActivity::class.java).apply {
                                             putExtra(USER_GOOGLE_ID, googleIdTokenCredential.id)
                                             putExtra(USER_GOOGLE_TOKEN, googleIdTokenCredential.idToken)
@@ -165,10 +159,12 @@ class LoginActivity : AppCompatActivity() {
                                     }
                                 }
                                 checkSignUp(googleIdTokenCredential.id, userExistenceHandler)
-                                // TODO: callback 구현 : 존재한다 =>> 메인, 존재 안한다 =>> 개인정보 동의화면
 
                                 // ============================== 여기부터 회원가입 ==============================
+                                // =============================================================================
+                                // TODO: 이 위치가 맞나?
                                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                                Log.d(TAG, "firebaseCredential = $firebaseCredential")
 
                                 auth.signInWithCredential(firebaseCredential)
                                     .addOnCompleteListener(this) { task ->
@@ -180,37 +176,11 @@ class LoginActivity : AppCompatActivity() {
                                             Log.e(TAG, "task is not successful ${task.exception}")
                                         }
                                     }
+                                // =============================================================================
                             }
 
                             else -> Log.w(TAG, "idToken is null")
                         }
-
-//                        val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
-//                        val idToken = googleCredential.googleIdToken
-//                        when {
-//                            idToken != null -> {
-//                                // Got an ID token from Google. Use it to authenticate
-//                                // with Firebase.
-//                                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-//                                auth.signInWithCredential(firebaseCredential)
-//                                    .addOnCompleteListener(this) { task ->
-//                                        if (task.isSuccessful) {
-//                                            // Sign in success, update UI with the signed-in user's information
-//                                            Log.d(TAG, "signInWithCredential:success")
-//                                            val user = auth.currentUser
-//                                            updateUI(user)
-//                                        } else {
-//                                            // If sign in fails, display a message to the user.
-//                                            Log.w(TAG, "signInWithCredential:failure", task.exception)
-//                                            updateUI(null)
-//                                        }
-//                                    }
-//                            }
-//                            else -> {
-//                                // Shouldn't happen.
-//                                Log.d(TAG, "No ID token!")
-//                            }
-//                        }
 
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
@@ -231,9 +201,10 @@ class LoginActivity : AppCompatActivity() {
     /**
      * fireStore에 email이 있는지 체크
      *
-     * @param String userEmail
+     * @param userId
+     * @param userExistenceHandler
      */
-    private fun checkSignUp(userId: String, userExistenceHandler: UserExistenceHandler) { // TODO: parameter =>> callback
+    private fun checkSignUp(userId: String, userExistenceHandler: UserExistenceHandler) {
         Log.i(TAG, "checkSignUp $userId")
 
         // 비동기 동작
@@ -242,11 +213,9 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener { document ->
                 if (document.data != null) {
                     Log.d(TAG, "$userId Info = ${document.data}")
-                    // TODO: parameter callback =>> call
                     userExistenceHandler.onExistUser()
                 } else {
                     Log.e(TAG, "No such document. $userId isn't existed.")
-                    // TODO: parameter callback =>> call
                     userExistenceHandler.onNotExistUser()
                 }
             }

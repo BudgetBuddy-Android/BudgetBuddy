@@ -22,4 +22,7 @@ object Constants {
     val LAST_DATA_PROCESSING_POLICY_AGREEMENT_DATE = "lastDataProcessingPolicyAgreementDate"
     val LAST_MARKETING_CONSENT_DATE = "lastMarketingConsentDate"
     //endregion ====================================== FireStoreDB ======================================
+
+    // local.properties
+    val WEB_CLIENT_ID = "" // TODO: 빌드 시 webClientId 추가
 }

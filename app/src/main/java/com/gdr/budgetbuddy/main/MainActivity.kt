@@ -13,8 +13,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-    }
 
+        val expanseInputFragment = ExpanseInputFragment()
+
+        binding.addExpanseBtn.setOnClickListener {
+            expanseInputFragment.show(supportFragmentManager, "ExpanseInputFragment")
+        }
+    }
 
 
 }
