@@ -37,6 +37,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <TextView
+        android:id="@+id/expanse_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
@@ -71,15 +72,17 @@
             android:background="@drawable/ig_necessity" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <TextView
+    <EditText
+        android:id="@+id/expanse_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="7dp"
         android:background="@drawable/bg_edit_text"
         android:gravity="center"
+        android:hint="12,345원"
+        android:inputType="numberDecimal"
         android:paddingVertical="12dp"
-        android:text="12,345원"
         android:textSize="20sp" />
 
 

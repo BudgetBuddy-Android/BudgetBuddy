@@ -21,7 +21,7 @@ android {
         }
     }
 
-    // TODO: add signingConfig
+    // TODO: 빌드 시 signingConfig 추가
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -29,11 +29,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-//            signingConfig = signingConfigs.getByName("release") // TODO: enable signingConfig
+//            signingConfig = signingConfigs.getByName("release")
             isDebuggable = true
         }
         getByName("debug") {
-//            signingConfig = signingConfigs.getByName("debug") // TODO: enable signingConfig
+//            signingConfig = signingConfigs.getByName("debug")
             isDebuggable = true
         }
     }
